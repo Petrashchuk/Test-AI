@@ -1,11 +1,10 @@
-import { ProductsAPI } from '../api/products';
+import { ProductsAPI, ProductType } from '../api';
 import { Suspense } from 'react';
 import { defer, Await, useLoaderData } from 'react-router-dom';
-import { Button, Loader } from '../components';
+import { Loader } from '../components';
 
 export const Product = () => {
-	// @ts-ignore
-	const { product } = useLoaderData();
+	const { product } = useLoaderData() as { product: ProductType };
 	return <>
 		<Suspense fallback={<Loader />}>
 			<Await resolve={product}>
@@ -17,7 +16,6 @@ export const Product = () => {
 						<div className='flex p-2 justify-between items-center'>
 							<p className='text-yellow-300 text-4xl'>{resolvedProduct.ating}</p>
 						</div>
-
 					</div>;
 				}}
 			</Await>

@@ -1,16 +1,12 @@
 import { useEffect, useState } from 'react';
 import { ReviewAPI, ReviewType } from '../api';
 import { useAuth } from '../contexts/auth';
+import { ReviewCard } from './ReviewFeedbackCard';
 
 
-const Card = ({ userId, id, productId, rating }: ReviewType) => {
-	return <div className="w-full border border-solid p-6">
-		{rating}
-	</div>
-};
-
-export const ReviewFeedback = () => {
+export const Reviews = () => {
 	const { user } = useAuth();
+
 	const [data, setData] = useState<ReviewType[]>([]);
 
 	useEffect(() => {
@@ -20,7 +16,7 @@ export const ReviewFeedback = () => {
 
 	}, []);
 
-	return <section>
-		{data.map(item => <Card key={item.id} {...item} />)}
+	return <section className="flex flex-col gap-y-2 overflow-auto">
+		{data?.map(item => <ReviewCard key={item.id} {...item} />)}
 	</section>;
 };

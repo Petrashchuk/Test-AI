@@ -1,40 +1,43 @@
-import ReactStars from 'react-rating-stars-component';
-import { ProductType } from '../api';
-import { ReviewModal } from './ReviewModal';
-import { SyntheticEvent, useState } from 'react';
-import { useAuth } from '../contexts/auth';
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react';
+import { useAuth } from '../contexts/auth'; // Import the context and mock it
 import { useNavigate } from 'react-router-dom';
+import { Card } from './Card';
 
-export const Card = ({ rating, name, image, id }: ProductType) => {
 
-	const { user } = useAuth();
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const navigate = useNavigate();
+jest.mock('../contexts/auth');
+jest.mock('react-router-dom', () => ({
 
-	const onClose = () => setIsModalOpen(false);
+	useNavigate: jest.fn(),
+}));
 
-	const handleReview = (e: SyntheticEvent) => {
-		e.stopPropagation();
-		setIsModalOpen(true);
-	};
+describe('Card component', () => {
 
-	const handleProductClick = () => {
-		navigate('/product/' + id);
-	};
+	const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
-	return <>
-		<li onClick={handleProductClick}
-			className='shadow-lg shadow-slate-400 rounded hover:scale-105 transition duration-500 cursor-pointer'>
-			<img src={image} className='aspect-square rounded-t min-h-[266px]' alt={name} />
-			<p className='p-2 font-bold'>{name}</p>
-			<div className='flex p-2 justify-between items-center'>
-				<ReactStars isHalf value={rating} />
-				<button onClick={handleReview}
-						className='bg-red-400 cursor-pointer hover:bg-red-600 rounded p-2 text-white'>
-					Review
-				</button>
-			</div>
-		</li>
-		{isModalOpen && <ReviewModal productId={id} userId={user?.id} onClose={onClose} image={image} name={name} />}
-	</>;
-};
+	beforeEach(() => {
+
+		// Mock user context for the test
+		mockUseAuth.mockReturnValue({ user: { id: '123' } });
+	});
+
+	it('renders the card with correct name and rating', () => {
+		const { getByText, getByRole } = render(
+			<Card id="1" name="Product 1" image="image-url" rating={4.5} />
+		);
+
+		expect(getByText('Product 1')).toBeInTheDocument();
+		expect(getByRole('img')).toHaveAttribute('alt', 'Product 1');
+		// You can further test other elements and attributes
+	});
+
+	it('opens the review modal when "Review" button is clicked', () => {
+		const { getByText, getByRole } = render(
+			<Card id="1" name="Product 1" image="image-url" rating={4.5} />
+		);
+
+		fireEvent.click(getByText('Review'));
+		expect(getByRole('dialog')).toBeInTheDocument(); // Assuming the modal is a dialog
+	});
+	// Add more tests for other scenarios and interactions
+});

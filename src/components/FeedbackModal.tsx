@@ -1,12 +1,34 @@
-import { SyntheticEvent } from 'react';
+import { useState } from 'react';
+import { FeedbackAPI } from '../api';
+import { useAuth } from '../contexts/auth';
+import { useLayout } from '../contexts/layout';
 
 type ModalType = {
-	onClose: (e: SyntheticEvent) => void;
-	onSend: (e: SyntheticEvent) => void;
+	onClose: () => void;
 }
 
 
-export const Modal = ({ onClose, onSend }: ModalType) => {
+export const FeedbackModal = ({ onClose }: ModalType) => {
+	const [feedback, setFeedback] = useState('');
+	const [{ isUpdatedFeedbacks }, dispatch] = useLayout();
+
+	const { user } = useAuth();
+
+	const onSend = async () => {
+		try {
+			await FeedbackAPI.setFeedback({
+				text: feedback,
+				userId: user?.id
+			});
+			dispatch({ payload: !isUpdatedFeedbacks, type: 'update_feedbacks' });
+		} catch (e: any) {
+			console.error(e.message);
+		} finally {
+			onClose();
+		}
+	};
+
+
 	return (
 		<div className='relative z-10' aria-labelledby='modal-title' role='dialog' aria-modal='true'>
 			<div className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity'></div>
@@ -23,8 +45,8 @@ export const Modal = ({ onClose, onSend }: ModalType) => {
 
 									<svg className='h-6 w-6 text-green-600' xmlns='http://www.w3.org/2000/svg'
 										 fill='none' viewBox='0 0 24 24'
-										 stroke-width='1.5' stroke='currentColor' aria-hidden='true'>
-										<path stroke-linecap='round' stroke-linejoin='round'
+										 strokeWidth='1.5' stroke='currentColor' aria-hidden='true'>
+										<path strokeLinecap='round' strokeLinejoin='round'
 											  d='M4.5 12.75l6 6 9-13.5'></path>
 									</svg>
 								</div>
@@ -34,7 +56,8 @@ export const Modal = ({ onClose, onSend }: ModalType) => {
 								</div>
 							</div>
 							<div className='mt-2'>
-								<textarea name='' id='' className='border border-solid w-full p-2'
+								<textarea value={feedback} onChange={(e) => setFeedback(e.target.value)}
+										  className='border border-solid w-full p-2'
 										  placeholder='Write your feedback' />
 							</div>
 						</div>

@@ -1,17 +1,34 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, PropsWithChildren, useContext, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { UserType } from '../api';
 
 
-const AuthContext = createContext(null);
-
-
-export const AuthProvider = (children) => {
-    const [isAuth, setIsAuth] = useState();
-
-
-    return <AuthContext.Provider value={{isAuth,setIsAuth}}>
-        {children}
-    </AuthContext.Provider>
+type AuthContextType = {
+	isAuth: boolean,
+	user: UserType | null,
+	setUser: Dispatch<SetStateAction<UserType>>
+	setIsAuth: Dispatch<SetStateAction<boolean>>
 }
 
 
-export const useAuth = ()=>useContext(AuthContext)
+const AuthContext = createContext<AuthContextType>({
+	isAuth: false,
+	user: null,
+	setIsAuth: (value) => value,
+	setUser: (value) => value
+});
+
+
+export const AuthProvider = ({ children }: PropsWithChildren) => {
+	const [isAuth, setIsAuth] = useState(!!localStorage.getItem('isAuth'));
+	const savedUser = localStorage.getItem('user');
+	const [user, setUser] = useState<UserType>(savedUser ? JSON.parse(savedUser) : null);
+
+
+	return <AuthContext.Provider value={{ isAuth, setIsAuth, user, setUser }}>
+		{children}
+	</AuthContext.Provider>;
+};
+
+
+export const useAuth = () => useContext(AuthContext);

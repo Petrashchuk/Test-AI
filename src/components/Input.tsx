@@ -1,18 +1,24 @@
-import React,{FC} from 'react';
+import React, { SyntheticEvent, forwardRef } from 'react';
 
-interface Book {
-	title: string;
-	author: string;
-	pages: number;
-}
 
 type InputType = {
-	value:string;
-}
-
-
-export const Input:FC<> = () => {
-	return <div>Input</div>;
+	value?: string;
+	onChange?: (e: SyntheticEvent) => void;
+	className?: string,
+	name?: string,
+	id?: string
+	type: 'text' | 'password',
+	withLabel?: boolean
+	labelText?: string
 };
+
+export const Input = forwardRef<HTMLInputElement, InputType>(({ id, labelText, withLabel, ...rest }, ref) => {
+	return (
+		<>
+			{withLabel && <label className='text-sm' htmlFor={id}>{labelText}</label>}
+			<input {...rest} id={id} ref={ref} />
+		</>
+	);
+});
 
 

@@ -1,8 +1,7 @@
 import React from "react";
 
-const Blog = () => {
-  return <div>Blog</div>;
+export const Blog = () => {
+  return <div className="flex-1">Blog</div>;
 };
 
-export default Blog;
 

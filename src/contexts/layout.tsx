@@ -1,35 +1,44 @@
-import { createContext, ReactElement, useContext, useState } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
-import { UserType } from '../api';
+import { createContext, ReactElement, useContext, useReducer, Dispatch } from 'react';
 
 
-type AuthContextType = {
-	isAuth: boolean,
-	user: UserType | null,
-	setUser: Dispatch<SetStateAction<UserType>>
-	setIsAuth: Dispatch<SetStateAction<boolean>>
+type StateType = {
+	isUpdatedFeedbacks: boolean;
+}
+
+type StateActionType = {
+	type: 'update_feedbacks';
+	payload: boolean;
 }
 
 
-const AuthContext = createContext<AuthContextType>({
-	isAuth: false,
-	user: null,
-	setIsAuth: (value) => value,
-	setUser: (value) => value
-});
+export const LayoutContext = createContext<[StateType, Dispatch<StateActionType>]>([{
+	isUpdatedFeedbacks: false
+}, () => {
+}]);
 
+function reducer(state: StateType, action: StateActionType) {
+	switch (action.type) {
+		case 'update_feedbacks': {
+			return { ...state, isUpdatedFeedbacks: action.payload };
+		}
 
-export const AuthProvider = ({ children }: {
+		default: {
+			return state;
+		}
+	}
+}
+
+export const LayoutProvider = ({ children }: {
 	children: ReactElement
 }) => {
-	const [isAuth, setIsAuth] = useState(!!localStorage.getItem('isAuth'));
-	const [user, setUser] = useState<UserType>(JSON.parse(localStorage.getItem('user') || ''));
+	const [state, dispatch] = useReducer(reducer, {
+		isUpdatedFeedbacks: false
+	});
 
-
-	return <AuthContext.Provider value={{ isAuth, setIsAuth, user, setUser }}>
+	return <LayoutContext.Provider value={[state, dispatch]}>
 		{children}
-	</AuthContext.Provider>;
+	</LayoutContext.Provider>;
 };
 
 
-export const useAuth = () => useContext(AuthContext);
+export const useLayout = () => useContext(LayoutContext);

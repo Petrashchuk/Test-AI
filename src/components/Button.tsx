@@ -1,16 +1,17 @@
-import React, { FC, SyntheticEvent } from 'react';
+import React, { FC, PropsWithChildren, SyntheticEvent } from 'react';
 
 
-type InputType = {
-	value: string;
-	onChange: (e: SyntheticEvent) => void;
-	type: 'text' | 'password',
-}
+type ButtonType = PropsWithChildren<{
+	onClick?: (e: SyntheticEvent) => void;
+	type: 'submit' | 'button',
+	value?: string
+	className?: string
+}>
 
-export const Input: FC<InputType> = (props) => {
+export const Button = (props: ButtonType) => {
 	return (
-		<input {...props} />
-	)
+		<button {...props} />
+	);
 };
 
 
